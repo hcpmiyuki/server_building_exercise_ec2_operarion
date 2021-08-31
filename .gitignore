@@ -2,3 +2,4 @@ venv
 **/__pycache__
 created_instance_ids_files/*.txt
 .env.local
+*.ipynb

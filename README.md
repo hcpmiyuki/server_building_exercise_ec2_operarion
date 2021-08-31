@@ -3,8 +3,9 @@
 ## 前提
 - 複製元のインスタンスのイメージが作成済みで、イメージidがわかっている
 
-## 設定
-[.env](.env)にiamユーザーの認証情報を書く
+## 設定・環境構築
+- [.env](.env)にiamユーザーの認証情報を書く
+- ```pip install -r requirements.txt```
 
 ## コマンド説明
 ### create_and_start_instances_from_image_id.py

@@ -2,7 +2,10 @@ import settings
 import boto3
 import argparse
 import datetime
+import time
+import json
 
+start = time.time()
 print('Start creating and starting instances.')
 
 # コマンドライン引数を受け取る
@@ -25,22 +28,22 @@ instances = ec2.create_instances(
     MinCount=COUNT
 )
 
-# インスタンスを停止させるためにidを保持するリスト
-instance_id_list = []
+# インスタンスを停止させるためにidとipアドレスなどの情報を保持する
+instance_info_dic = {}
 
 # idを保持しながら、全てのインスタンスの起動が終わるまで待機する
 for instance in instances:
     instance_id = instance.id
-    instance_id_list.append(instance_id)
     instance.wait_until_running()
+    instance_info = ec2.Instance(instance_id)
+    instance_info_dic[instance_id] = {'public_ip_address': instance_info.public_ip_address}
     print('Starting instance:{} is complete!'.format(instance_id))
 
-# idのリストをカンマ区切りのテキストにし、created_instance_ids_files/<timestamp>_created.txtに保存する
+# インスタンスの情報を、created_instance_ids_files/<timestamp>_created.jsonに保存する
 timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-filename = '{}_created.txt'.format(timestamp)
+filename = '{}_created.json'.format(timestamp)
 filepath = 'created_instance_ids_files/{}'.format(filename)
-with open(filepath, 'w') as f:
-    f.write(','.join(instance_id_list))
+json.dump(instance_info_dic, open(filepath, 'w'), indent=4)
     
 print(
 '''
@@ -49,3 +52,6 @@ To stop and finish created instances,
 please run "python stop_and_finish_instances.py --INSTANCE_IDS_FILE_NAME={}"
 '''.format(filename)
 )
+
+elapsed_time = time.time() - start
+print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
